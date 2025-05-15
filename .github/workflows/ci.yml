@@ -1,0 +1,37 @@
+name: SweetSpot Frontend CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: sweetspot-frontend
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Lint HTML files
+        uses: gaurav-nelson/github-action-htmlhint@master
+        with:
+          files: 'sweetspot-frontend/**/*.html'
+
+      - name: Lint JS files (optional)
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: |
+          npm install eslint
+          npx eslint scripts.js || echo "⚠️ JS lint warnings, continuing build"
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: sweetspot-frontend
